@@ -1,0 +1,63 @@
+version: '3.7'
+services:
+
+  api_serv:
+    image: serv/api_serv
+    container_name: api_serv
+    networks:
+      - db-network
+      - api-network
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./environments/api-service.env
+    depends_on:
+      - db_p
+      - kafka
+
+  data_serv:
+    image: serv/data_serv
+    container_name: data_serv
+    env_file:
+      - ./environments/data-service.env
+    depends_on:
+      - db_p
+      - kafka
+    networks:
+      - db-network
+
+  db_p:
+    image: postgres 
+    container_name: db_p
+    env_file:
+      - ./environments/postgres.env
+    volumes:
+      - postgres_data_volumes:/var/lib/postgresql/data
+    networks:
+      - db-network
+         
+   
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    networks:
+      - db-network
+    env_file:
+      - ./environments/kafka.env
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    networks:
+      - db-network
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+volumes:    
+  postgres_data_volumes:
+networks:
+  db-network:
+    driver: bridge
+    internal: true 
+  api-network:
+    driver: bridge

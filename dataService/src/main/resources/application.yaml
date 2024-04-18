@@ -1,0 +1,14 @@
+server:
+  port: ${SERVER_PORT}
+spring:
+  datasource.username: ${DB_USER}
+  datasource.password: ${DB_PWD}
+  datasource.url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
+  datasource.driverClassName: org.postgresql.Driver
+  jpa.database-platform: org.hibernate.dialect.PostgreSQLDialect
+  jpa.hibernate.ddl-auto: update
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+kafka:
+  car.topic: ${KAFKA_TOPIC_CAR}
+  consumer.car.id: ${KAFKA_CONSUMER_CaR_ID}
