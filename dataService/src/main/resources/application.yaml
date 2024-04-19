@@ -11,4 +11,6 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 kafka:
   car.topic: ${KAFKA_TOPIC_CAR}
-  consumer.car.id: ${KAFKA_CONSUMER_CaR_ID}
+  parkinglot.topic: ${KAFKA_TOPIC_PARKINGLOT}
+  consumer.car.id: ${KAFKA_CONSUMER_CAR_ID}
+  consumer.parkinglot.id: ${KAFKA_CONSUMER_PARKINGLOT_ID}

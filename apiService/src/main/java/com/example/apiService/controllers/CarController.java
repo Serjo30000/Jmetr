@@ -1,24 +1,25 @@
 package com.example.apiService.controllers;
 
-import java.net.URI;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
+
+import java.util.concurrent.ExecutionException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.example.apiService.models.Cars.CarDto;
 import com.example.apiService.models.Cars.MapperCar;
 import com.example.apiService.dto.MessageRes;
 import com.example.apiService.services.CarService;
-import com.example.apiService.services.KafkaMessageSender;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.apiService.services.KafkaMessagePublisher;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,38 +28,28 @@ import lombok.RequiredArgsConstructor;
 public class CarController {
     private final CarService carService;
     private final MapperCar mapperCar;
-    private final KafkaMessageSender kafkaMessageSender;
-    @Value("${kafka.car.topic}")
-    private String topic;
+    private final KafkaMessagePublisher kafkaMessagePublisher;
 
     @GetMapping
-    public List<CarDto> getAll() {
-        return carService.getAll().stream()
+    public ResponseEntity<List<CarDto>> getAll() {
+        return ResponseEntity.ok(carService.getAll().stream()
                 .map(mapperCar::map)
-                .toList();
+                .toList());
     }
 
     @GetMapping("/{numberCar}")
-    public CarDto getByNumberCar(@PathVariable("numberCar") String numberCar) {
-        return mapperCar.map(carService.getByNumberCar(numberCar));
-    }
-
-    @GetMapping("status/{numberCar}")
-    public Object getByStatusNumberCar(@PathVariable("numberCar") String numberCar) {
-        MessageRes messageRes = carService.getByStatusNumberCar(numberCar);
-        if (messageRes.getMsg().equals("OK")) {
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentContextPath()
-                    .path("/data/cars/{numberCar}")
-                    .buildAndExpand(numberCar)
-                    .toUri();
-            return new RedirectView(location.toString(), true);
-        }
-        return messageRes;
+    public ResponseEntity<CarDto> getByNumberCar(@PathVariable("numberCar") String numberCar) {
+        return ResponseEntity.ok(mapperCar.map(carService.getByNumberCar(numberCar)));
     }
 
     @PostMapping("/request")
-    public CompletableFuture<MessageRes> addCar(@RequestBody CarDto dto) {
-        return kafkaMessageSender.send(topic, dto.getNumberCar(), dto);
+    public ResponseEntity<MessageRes> addCar(@RequestBody CarDto dto) {
+        try {
+            kafkaMessagePublisher.sendToCarTopic(dto.getNumberCar(), dto);
+            return ResponseEntity.ok(new MessageRes("Accepted"));
+        } catch (InterruptedException | ExecutionException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageRes("Internal server error"));
+        }
     }
 }
