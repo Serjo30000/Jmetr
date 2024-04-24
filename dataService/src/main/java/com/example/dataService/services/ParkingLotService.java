@@ -1,5 +1,7 @@
 package com.example.dataService.services;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.example.dataService.models.ParkingLots.ParkingLot;
@@ -14,14 +16,12 @@ public class ParkingLotService {
 
     @Transactional
     public String saveParkingLot(ParkingLot pL) {
+        UUID uuid = UUID.randomUUID();
+
+        pL.setNumberParkingLot(uuid.toString());
+
         if (pL.getNumberParkingLot().isEmpty() || pL.getLocation().isEmpty()) {
             return "ParkingLot not added";
-        }
-
-        for (ParkingLot elemPl : parkingLotRepository.findAll()) {
-            if (pL.getNumberParkingLot().equals(elemPl.getNumberParkingLot())) {
-                return "ParkingLot not added";
-            }
         }
 
         parkingLotRepository.save(pL);

@@ -26,7 +26,7 @@ public class TopicListener {
     private final MapperParkingLot mapperParkingLot;
     private final ObjectMapper mapper;
 
-    @KafkaListener(topics = "${kafka.car.topic}", concurrency = "2", groupId = "${kafka.consumer.car.id}")
+    @KafkaListener(topics = "${kafka.car.topic}", concurrency = "4", groupId = "${kafka.consumer.car.id}")
     void consumeMovie(String dto) throws JsonMappingException {
         try {
             var d = mapper.readValue(dto, CarDto.class);
@@ -37,7 +37,7 @@ public class TopicListener {
         }
     }
 
-    @KafkaListener(topics = "${kafka.parkinglot.topic}", concurrency = "2", groupId = "${kafka.consumer.parkinglot.id}")
+    @KafkaListener(topics = "${kafka.parkinglot.topic}", concurrency = "4", groupId = "${kafka.consumer.parkinglot.id}")
     void consumeParkingLot(String dto) throws JsonMappingException {
         try {
             var d = mapper.readValue(dto, ParkingLotDto.class);

@@ -1,5 +1,7 @@
 package com.example.dataService.services;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.example.dataService.models.Cars.Car;
@@ -15,15 +17,13 @@ public class CarService {
 
     @Transactional
     public String saveCar(Car c) {
+        UUID uuid = UUID.randomUUID();
+
+        c.setNumberCar(uuid.toString());
+
         if (c.getNumberCar().isEmpty() || c.getBrand().isEmpty()
                 || c.getCountry().isEmpty() || c.getModel().isEmpty()) {
             return "Car not added";
-        }
-
-        for (Car elemC : carRepository.findAll()) {
-            if (c.getNumberCar().equals(elemC.getNumberCar())) {
-                return "Car not added";
-            }
         }
 
         carRepository.save(c);
