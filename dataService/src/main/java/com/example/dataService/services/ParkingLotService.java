@@ -20,10 +20,6 @@ public class ParkingLotService {
 
         pL.setNumberParkingLot(uuid.toString());
 
-        if (pL.getNumberParkingLot().isEmpty() || pL.getLocation().isEmpty()) {
-            return "ParkingLot not added";
-        }
-
         parkingLotRepository.save(pL);
 
         return "ParkingLot added";

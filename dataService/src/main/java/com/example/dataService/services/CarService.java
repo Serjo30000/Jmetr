@@ -21,11 +21,6 @@ public class CarService {
 
         c.setNumberCar(uuid.toString());
 
-        if (c.getNumberCar().isEmpty() || c.getBrand().isEmpty()
-                || c.getCountry().isEmpty() || c.getModel().isEmpty()) {
-            return "Car not added";
-        }
-
         carRepository.save(c);
 
         return "Car added";
